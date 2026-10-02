@@ -1,57 +1,43 @@
+
 package main
 
 import (
 	"ca1/tracker"
 	"fmt"
+	"os"
 )
 
 func main() {
 
 	db := tracker.NewTicketDb()
 
-	err := db.CreateTicket(101, "Login Bug", "High", "", "Open")
-	if err != nil {
-		fmt.Println(err)
+	db.CreateTicket(tracker.NewTicket(101, "Login Bug", "High", "", "Open"))
+	db.CreateTicket(tracker.NewTicket(102, "Payment Bug", "Critical", "", "Open"))
+
+	if len(os.Args) < 2 {
+		fmt.Println("create / display / assign / search / close")
+		return
 	}
 
-	err = db.CreateTicket(102, "Payment Bug", "Critical", "", "Open")
-	if err != nil {
-		fmt.Println(err)
-	}
+	switch os.Args[1] {
 
-	fmt.Println("All Tickets")
-	db.DisplayAll()
+	case "create":
+		fmt.Println("Tickets Created")
+		tracker.SaveFile()
 
-	// Assign Arun to Ticket 101
-	err = db.AssignDeveloper(101, "Arun")
-	if err != nil {
-		fmt.Println(err)
-	}
+	case "display":
+		db.DisplayAll()
 
-	// Assign Arun to Ticket 102
-	err = db.AssignDeveloper(102, "Arun")
-	if err != nil {
-		fmt.Println(err)
-	}
+	case "assign":
+		db.AssignDeveloper(101, "Arun")
+		db.DisplayAll()
 
-	fmt.Println("After Assigning Developer")
-	db.DisplayAll()
-
-	ticket, err := db.SearchTicket(101)
-
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println("Search Result")
+	case "search":
+		ticket, _ := db.SearchTicket(101)
 		ticket.Display()
+
+	case "close":
+		db.CloseTicket(102)
+		db.DisplayAll()
 	}
-
-	err = db.CloseTicket(102)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println("After Closing Ticket 102")
-	db.DisplayAll()
 }

@@ -1,6 +1,9 @@
 package tracker
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 type Ticket struct {
 	TicketID    int
@@ -13,79 +16,59 @@ type Ticket struct {
 type TicketDb []Ticket
 
 func (this Ticket) Display() {
-	fmt.Println("Ticket ID: ", this.TicketID)
-	fmt.Println("Title: ", this.Title)
-	fmt.Println("Severity: ", this.Severity)
-	fmt.Println("Assigned Developer: ", this.AssignedDev)
-	fmt.Println("Status: ", this.Status)
+	fmt.Println(this.TicketID, this.Title, this.Severity, this.AssignedDev, this.Status)
 }
 
-func NewTicket(TicketID int, Title string, Severity string, AssignedDev string, Status string) Ticket {
-	return Ticket{
-		TicketID:    TicketID,
-		Title:       Title,
-		Severity:    Severity,
-		AssignedDev: AssignedDev,
-		Status:      Status,
-	}
+func NewTicket(id int, title string, severity string, dev string, status string) Ticket {
+	return Ticket{id, title, severity, dev, status}
 }
 
 func NewTicketDb() TicketDb {
 	return []Ticket{}
 }
 
-func (this *TicketDb) CreateTicket(TicketID int, Title string, Severity string, AssignedDev string, Status string) error {
-
-	if Severity == "Low" || Severity == "Medium" || Severity == "High" || Severity == "Critical" {
-
-		t := NewTicket(TicketID, Title, Severity, AssignedDev, Status)
-
+func (this *TicketDb) CreateTicket(t Ticket) error {
+	if t.Severity == "Low" || t.Severity == "Medium" ||
+		t.Severity == "High" || t.Severity == "Critical" {
 		*this = append(*this, t)
 	}
-
 	return nil
 }
 
 func (this TicketDb) SearchTicket(id int) (*Ticket, error) {
-
 	for i := range this {
-
 		if this[i].TicketID == id {
 			return &this[i], nil
 		}
 	}
-
 	return nil, nil
 }
 
-func (this *TicketDb) AssignDeveloper(id int, devName string) error {
-
+func (this *TicketDb) AssignDeveloper(id int, dev string) error {
 	for i := range *this {
-
 		if (*this)[i].TicketID == id {
-			(*this)[i].AssignedDev = devName
+			(*this)[i].AssignedDev = dev
 			(*this)[i].Status = "In Progress"
 		}
 	}
-
 	return nil
 }
 
 func (this *TicketDb) CloseTicket(id int) error {
-
 	for i := range *this {
-
 		if (*this)[i].TicketID == id {
 			(*this)[i].Status = "Closed"
 		}
 	}
-
 	return nil
 }
 
 func (this TicketDb) DisplayAll() {
-
 	for _, v := range this {
 		v.Display()
 	}
+}
+
+func SaveFile() {
+	os.WriteFile("tickets.txt", []byte("Tickets saved"), 0644)
 }
